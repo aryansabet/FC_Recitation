@@ -28,7 +28,7 @@ jobs:
 
       - name: Deploy to Liara
         env:
-          LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
+          LIARA_TOKEN: ${{ secrets.LIARA_TOKEN }}
         run: |
           npm i -g @liara/cli@7
           liara deploy --app="fccourse" --api-token="$LIARA_TOKEN" --no-app-logs --path="./dist"
