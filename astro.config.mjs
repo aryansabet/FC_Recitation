@@ -5,48 +5,43 @@ import starlight from '@astrojs/starlight';
 export default defineConfig({
 	integrations: [
 		starlight({
-			title: 'مستندنویسی در Astro',
+			title: 'درس برنامه‌نویسی (مبانی و پیشرفته)',
 			customCss: [
 				// Relative path to your custom CSS file
 				'./src/styles/custom.css',
-			  ],		
+			],
 			locales: {
 				root: {
-				  label: 'Farsi',
-				  lang: 'fa',
-				  dir: 'rtl',
+					label: 'Farsi',
+					lang: 'fa',
+					dir: 'rtl',
 				},
-			  },		
-			social: {
-				github: 'https://github.com/arastoonet',
 			},
+			// social: {
+			// 	github: 'https://github.com/aryansabet/FC_Recitation',
+			// },
 			sidebar: [
 				{
-					label: 'آشنایی با پروژه',
-					items: [
-						// Each item here is one entry in the navigation menu.
-						{ label: 'اهداف پروژه', link: '/main/project/' },
-					],
+					label: 'حل تمرین',
+					autogenerate: { directory: 'haltamrin' },
+
 				},
 				{
-					label: 'مقدمات',
-					items: [
-						// Each item here is one entry in the navigation menu.
-						{ label: 'معرفی پروژه', link: '/main/example/' },
-					],
+					label: 'کارگاه',
+					autogenerate: { directory: 'Workshop' },
 				},
-				{
-					label: 'موضوع اول',
-					autogenerate: { directory: 'topic1' },
-				},
-				{
-					label: 'موضوع دوم',
-					autogenerate: { directory: 'topic2' },
-				},
-				{
-					label: 'منابع',
-					autogenerate: { directory: 'reference' },
-				},
+				// {
+				// 	label: 'مقدمات',
+				// 	items: [
+				// 		// Each item here is one entry in the navigation menu.
+				// 		{ label: 'معرفی پروژه', link: '/main/example/' },
+				// 	],
+				// },
+				// {
+				// 	label: 'موضوع اول',
+				// 	autogenerate: { directory: 'topic1' },
+				// },
+
 
 			],
 		}),
