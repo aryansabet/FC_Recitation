@@ -6,6 +6,7 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'درس برنامه‌نویسی (مبانی و پیشرفته)',
+			tableOfContents: { minHeadingLevel: 2, maxHeadingLevel: 6 },
 			customCss: [
 				// Relative path to your custom CSS file
 				'./src/styles/custom.css',
