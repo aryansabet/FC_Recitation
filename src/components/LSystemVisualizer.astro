@@ -1,0 +1,274 @@
+<div class="container">
+  <div class="visualization">
+    <svg id="tree" width="800" height="600"></svg>
+  </div>
+  <div class="controls">
+    <button id="prevBtn" disabled>Previous</button>
+    <div class="depth-display">Depth: <span id="depthDisplay">0</span></div>
+    <button id="nextBtn">Next</button>
+  </div>
+  <div class="info">
+    Rule: F → F+F-F | Colors show when each symbol was introduced
+  </div>
+</div>
+
+<style>
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+  }
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .visualization {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 8px;
+    overflow: auto;
+  }
+  svg {
+    display: block;
+    margin: 0 auto;
+    min-width: 400px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+  }
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  button {
+    padding: 8px 16px;
+    width: fit-content;
+    height: fit-content;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+  }
+  .depth-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+  }
+  .info {
+    text-align: center;
+    margin-top: 16px;
+    padding: 8px;
+    background: #f8fafc;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+</style>
+
+<script>
+  const colors = [
+    "#2563eb", // blue-600
+    "#16a34a", // green-600
+    "#dc2626", // red-600
+    "#9333ea", // purple-600
+    "#ea580c", // orange-600
+  ];
+
+  let currentDepth = 0;
+  const maxDepth = 4;
+
+  function generateTreeData(depth) {
+    const nodeWidth = 40;
+    const levelHeight = 80;
+    const nodes = [];
+    const links = [];
+
+    // Keep track of when symbols were first introduced
+    const symbolOrigins = new Map();
+    symbolOrigins.set("F-0", 0);
+
+    let currentLevel = [{ char: "F", id: "F-0" }];
+    let nextLevel = [];
+    let levelNodes = 1;
+    let symbolCounter = 1;
+
+    for (let level = 0; level <= depth; level++) {
+      const levelWidth = levelNodes * nodeWidth;
+      const startX = -levelWidth / 2;
+
+      currentLevel.forEach((node, index) => {
+        const x = startX + index * nodeWidth + nodeWidth / 2;
+        const y = level * levelHeight;
+
+        const colorLevel = symbolOrigins.get(node.id);
+
+        nodes.push({
+          id: `${level}-${index}`,
+          x,
+          y,
+          char: node.char,
+          level,
+          colorLevel,
+          symbolId: node.id,
+        });
+
+        if (level < depth && node.char === "F") {
+          const replacement = ["F", "+", "F", "-", "F"].map((char) => {
+            if (char === "F") {
+              const newId = `F-${symbolCounter++}`;
+              symbolOrigins.set(newId, level + 1);
+              return { char, id: newId };
+            } else {
+              const newId = `${char}-${level + 1}`;
+              if (!symbolOrigins.has(newId)) {
+                symbolOrigins.set(newId, level + 1);
+              }
+              return { char, id: newId };
+            }
+          });
+
+          replacement.forEach((newNode) => nextLevel.push(newNode));
+
+          const childStartIndex = nextLevel.length - replacement.length;
+          replacement.forEach((_, childOffset) => {
+            links.push({
+              source: `${level}-${index}`,
+              target: `${level + 1}-${childStartIndex + childOffset}`,
+              level,
+            });
+          });
+        } else if (level < depth) {
+          nextLevel.push(node);
+          links.push({
+            source: `${level}-${index}`,
+            target: `${level + 1}-${nextLevel.length - 1}`,
+            level,
+          });
+        }
+      });
+
+      currentLevel = nextLevel;
+      nextLevel = [];
+      levelNodes = currentLevel.length;
+    }
+
+    return { nodes, links };
+  }
+
+  function updateVisualization() {
+    const svg = document.getElementById("tree");
+    const { nodes, links } = generateTreeData(currentDepth);
+
+    // Calculate SVG dimensions
+    const maxX = Math.max(...nodes.map((n) => Math.abs(n.x)));
+    const maxY = Math.max(...nodes.map((n) => n.y));
+    const svgWidth = maxX * 2.5;
+    const svgHeight = maxY + 50;
+
+    // Update SVG viewBox
+    svg.setAttribute(
+      "viewBox",
+      `${-svgWidth / 2} -20 ${svgWidth} ${svgHeight + 40}`
+    );
+
+    // Clear previous content
+    svg.innerHTML = "";
+
+    // Create group for transformation
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+    // Draw links
+    links.forEach((link) => {
+      const source = nodes.find((n) => n.id === link.source);
+      const target = nodes.find((n) => n.id === link.target);
+
+      const line = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "line"
+      );
+      line.setAttribute("x1", source.x);
+      line.setAttribute("y1", source.y);
+      line.setAttribute("x2", target.x);
+      line.setAttribute("y2", target.y);
+      line.setAttribute("stroke", colors[source.colorLevel % colors.length]);
+      line.setAttribute("stroke-width", "1");
+      line.setAttribute("opacity", "0.5");
+      g.appendChild(line);
+    });
+
+    // Draw nodes
+    nodes.forEach((node) => {
+      const circle = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "circle"
+      );
+      circle.setAttribute("cx", node.x);
+      circle.setAttribute("cy", node.y);
+      circle.setAttribute("r", "15");
+      circle.setAttribute("fill", "white");
+      circle.setAttribute("stroke", colors[node.colorLevel % colors.length]);
+      circle.setAttribute("stroke-width", "2");
+
+      const text = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "text"
+      );
+      text.setAttribute("x", node.x);
+      text.setAttribute("y", node.y);
+      text.setAttribute("text-anchor", "middle");
+      text.setAttribute("dominant-baseline", "middle");
+      text.setAttribute("font-size", "14");
+      text.setAttribute("font-family", "monospace");
+      text.setAttribute("fill", colors[node.colorLevel % colors.length]);
+      text.textContent = node.char;
+
+      g.appendChild(circle);
+      g.appendChild(text);
+    });
+
+    svg.appendChild(g);
+
+    // Update controls
+    document.getElementById("depthDisplay").textContent = currentDepth;
+    document.getElementById("prevBtn").disabled = currentDepth === 0;
+    document.getElementById("nextBtn").disabled = currentDepth === maxDepth;
+  }
+
+  function incrementDepth() {
+    if (currentDepth < maxDepth) {
+      currentDepth++;
+      updateVisualization();
+    }
+  }
+
+  function decrementDepth() {
+    if (currentDepth > 0) {
+      currentDepth--;
+      updateVisualization();
+    }
+  }
+
+  // Wait for DOM to be ready
+  document.addEventListener("DOMContentLoaded", () => {
+    // Add event listeners
+    document
+      .getElementById("prevBtn")
+      .addEventListener("click", decrementDepth);
+    document
+      .getElementById("nextBtn")
+      .addEventListener("click", incrementDepth);
+
+    // Initial render
+    updateVisualization();
+  });
+</script>

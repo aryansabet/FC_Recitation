@@ -1,0 +1,211 @@
+---
+title: "آموزش مدیریت موقعیت و حالت در turtle"
+description: "یادگیری مدیریت موقعیت و حالت با مثال‌های ساده بازی"
+sidebar:
+  # Set a custom label for the link
+#   label: Custom sidebar label
+  # Set a custom order for the link (lower numbers are displayed higher up)
+  order: 2
+  # Add a badge to the link
+  badge:
+    text: New
+    variant: tip
+---
+
+import MovementDemo from '../../../components/react/MovementDemo';
+import CheckpointDemo from '../../../components/react/CheckpointDemo';
+import GameDemo from '../../../components/react/GameDemo';
+
+
+
+در این آموزش، یاد می‌گیریم چگونه موقعیت و حالت یک شیء را در فضای دو بعدی مدیریت کنیم.
+
+
+```python
+import turtle
+
+# ساخت لاک‌پشت
+screen = turtle.Screen()
+t = turtle.Turtle()
+
+# تنظیمات ظاهری لاک‌پشت
+t.shape("square")     # شکل مربع
+t.color("blue")      # رنگ آبی
+t.penup()            # قلم بالا - خط نکشیدن
+
+# توابع حرکت
+def move_right():
+    t.forward(50)    # 50 پیکسل به جلو
+
+def move_left():
+    t.backward(50)   # 50 پیکسل به عقب
+
+# حرکت با کلیدها
+screen.onkey(move_right, "Right")  # کلید راست
+screen.onkey(move_left, "Left")    # کلید چپ
+screen.listen()                    # گوش دادن به کلیدها
+
+screen.mainloop()
+```
+
+
+### نمایش زنده 🎮
+
+<MovementDemo client:visible>
+  با دکمه‌های زیر حرکت مربع آبی را کنترل کنید:
+</MovementDemo>
+
+## بخش دوم: ذخیره موقعیت 💾
+
+
+```python
+import turtle
+
+# ساخت لاک‌پشت و صفحه
+screen = turtle.Screen()
+t = turtle.Turtle()
+t.shape("square")
+t.color("blue")
+t.penup()
+
+# لیست برای ذخیره موقعیت‌ها
+saved_x = []  # لیست برای ذخیره x
+saved_y = []  # لیست برای ذخیره y
+
+def save_spot():
+    # ذخیره موقعیت فعلی
+    saved_x.append(t.xcor())
+    saved_y.append(t.ycor())
+    
+    # نمایش نقطه سبز
+    old_color = t.color()[0]  # گرفتن رنگ فعلی
+    t.color("green")
+    t.dot(10)        # کشیدن نقطه
+    t.color(old_color)  # برگرداندن رنگ قبلی
+
+def go_back():
+    # اگر موقعیتی ذخیره شده باشد
+    if len(saved_x) > 0:
+        # برداشتن آخرین موقعیت
+        last_x = saved_x.pop()
+        last_y = saved_y.pop()
+        # رفتن به آن موقعیت
+        t.goto(last_x, last_y)
+
+# کلیدها
+def move_right():
+    t.forward(50)
+
+screen.onkey(move_right, "Right")  # حرکت
+screen.onkey(save_spot, "s")       # ذخیره با s
+screen.onkey(go_back, "b")         # برگشت با b
+screen.listen()
+
+screen.mainloop()
+```
+
+
+### نمایش زنده نقاط بازگشت 🎯
+
+<CheckpointDemo client:visible>
+  - دکمه حرکت: مربع را حرکت می‌دهد
+  - دکمه s: موقعیت را ذخیره می‌کند
+  - دکمه b: به موقعیت قبلی برمی‌گردد
+</CheckpointDemo>
+
+## بخش سوم: حرکت در چهار جهت 🎮
+
+
+```python
+import turtle
+
+# ساخت و تنظیم لاک‌پشت
+screen = turtle.Screen()
+t = turtle.Turtle()
+t.shape("square")
+t.color("blue")
+t.penup()
+
+# لیست‌های ذخیره موقعیت
+saved_x = []
+saved_y = []
+
+# توابع حرکت
+def move_up():
+    y = t.ycor()  # گرفتن موقعیت y
+    t.sety(y + 20)
+
+def move_down():
+    y = t.ycor()
+    t.sety(y - 20)
+
+def move_right():
+    x = t.xcor()  # گرفتن موقعیت x
+    t.setx(x + 20)
+
+def move_left():
+    x = t.xcor()
+    t.setx(x - 20)
+
+def save_spot():
+    saved_x.append(t.xcor())
+    saved_y.append(t.ycor())
+    # کشیدن نقطه سبز
+    t.color("green")
+    t.dot(10)
+    t.color("blue")
+
+def go_back():
+    if len(saved_x) > 0:
+        last_x = saved_x.pop()
+        last_y = saved_y.pop()
+        t.goto(last_x, last_y)
+
+# تنظیم کلیدها
+screen.onkey(move_up, "Up")
+screen.onkey(move_down, "Down")
+screen.onkey(move_right, "Right")
+screen.onkey(move_left, "Left")
+screen.onkey(save_spot, "space")
+screen.onkey(go_back, "b")
+screen.listen()
+
+# نوشتن راهنما
+t.goto(-150, 150)
+t.write("کلیدهای جهت‌دار: حرکت\nspace: ذخیره\nb: برگشت")
+t.goto(0, 0)
+
+screen.mainloop()
+```
+
+
+### بازی نمونه 🎲
+
+<GameDemo client:visible>
+  - کلیدهای جهت‌دار: حرکت مربع
+  - space: ذخیره موقعیت
+  - b: برگشت به موقعیت قبلی
+</GameDemo>
+
+## تمرین‌های پیشنهادی 🎯
+
+1. تغییر رنگ مربع با کلید 'c':
+```python
+def change_color():
+    if t.color()[0] == "blue":
+        t.color("red")
+    else:
+        t.color("blue")
+
+screen.onkey(change_color, "c")
+```
+
+2. کشیدن خط مسیر حرکت:
+```python
+# در ابتدای برنامه:
+t.pendown()  # قلم پایین - کشیدن خط
+```
+
+<div class="tip">
+💡 نکته: برای پاک کردن صفحه می‌توانید از t.clear() استفاده کنید.
+</div>../../../components/CheckpointDemo

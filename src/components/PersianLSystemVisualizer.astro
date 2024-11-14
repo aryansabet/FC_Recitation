@@ -1,0 +1,163 @@
+---
+
+---
+
+<div class="flex flex-col gap-8 p-4 text-right" dir="rtl">
+  <div class="border rounded-lg p-4 bg-slate-50">
+    <h3 class="font-bold mb-4">سیستم تک‌قانونی: کتاب ⟶ کتاب خوب</h3>
+    <div class="flex flex-col gap-4">
+      <div class="flex justify-between items-center">
+        <button
+          id="prevSingle"
+          class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+        >
+          قبلی
+        </button>
+        <div
+          id="singleStep"
+          class="text-lg font-mono bg-white p-2 rounded border"
+        >
+          کتاب
+        </div>
+        <button
+          id="nextSingle"
+          class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+        >
+          بعدی
+        </button>
+      </div>
+      <div id="singleCounter" class="text-sm text-gray-600">تکرار: 0</div>
+    </div>
+  </div>
+  <slot />
+  <div class="border rounded-lg p-4 bg-slate-50">
+    <h3 class="font-bold mb-4">سیستم دو‌قانونی:</h3>
+    <div class="text-sm mb-4 bg-gray-100 p-2 rounded">
+      قانون ۱: کتاب ⟶ کتاب خوب<br />
+      قانون ۲: خوب ⟶ گلمراد
+    </div>
+
+    <div class="flex flex-col gap-4">
+      <div class="flex justify-between items-center">
+        <button
+          id="prevDouble"
+          class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+        >
+          قبلی
+        </button>
+        <div
+          id="doubleStep"
+          class="text-lg font-mono bg-white p-2 rounded border"
+        >
+          کتاب
+        </div>
+        <button
+          id="nextDouble"
+          class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+        >
+          بعدی
+        </button>
+      </div>
+      <div id="doubleCounter" class="text-sm text-gray-600">تکرار: 0</div>
+      <div id="analysis" class="text-sm bg-gray-100 p-2 rounded">
+        جایگزینی‌های ممکن: "کتاب" می‌تواند با "کتاب خوب" جایگزین شود
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const singleSteps = [
+    "کتاب",
+    "کتاب خوب",
+    "کتاب خوب خوب",
+    "کتاب خوب خوب خوب",
+    "کتاب خوب خوب خوب خوب",
+    "کتاب خوب خوب خوب خوب خوب",
+  ];
+
+  const doubleSteps = [
+    "کتاب",
+    "کتاب خوب",
+    "کتاب خوب گلمراد",
+    "کتاب خوب گلمراد گلمراد",
+    "کتاب خوب گلمراد گلمراد گلمراد",
+    "کتاب خوب گلمراد گلمراد گلمراد گلمراد",
+  ];
+
+  const getAnalysis = (current) => {
+    switch (current) {
+      case 0:
+        return 'جایگزینی‌های ممکن: "کتاب" می‌تواند با "کتاب خوب" جایگزین شود';
+      case 1:
+        return 'جایگزینی‌های ممکن: "کتاب" به "کتاب خوب" و "خوب" به "گلمراد" تبدیل می‌شود';
+      case 2:
+        return 'جایگزینی‌های ممکن: ۱- "کتاب" به "کتاب خوب" می‌رود، ۲- "خوب" به "گلمراد" می‌رود';
+      case 3:
+        return 'جایگزینی‌های ممکن: ۱- "کتاب" به "کتاب خوب" می‌رود، ۲- "خوب" به "گلمراد" می‌رود، کلمه "گلمراد" بدون تغییر می‌ماند';
+      case 4:
+        return 'جایگزینی‌های ممکن: "کتاب" همچنان به "کتاب خوب" می‌رود و "خوب" به "گلمراد". کلمات "گلمراد" تغییر نمی‌کنند';
+      case 5:
+        return 'جایگزینی‌های ممکن: همچنان "کتاب" به "کتاب خوب" و "خوب" به "گلمراد". الگو ادامه می‌یابد';
+      default:
+        return "این الگو می‌تواند تا بی‌نهایت ادامه پیدا کند";
+    }
+  };
+
+  let currentSingle = 0;
+  let currentDouble = 0;
+
+  document.getElementById("prevSingle").addEventListener("click", () => {
+    if (currentSingle > 0) {
+      currentSingle--;
+      updateSingleUI();
+    }
+  });
+
+  document.getElementById("nextSingle").addEventListener("click", () => {
+    if (currentSingle < singleSteps.length - 1) {
+      currentSingle++;
+      updateSingleUI();
+    }
+  });
+
+  document.getElementById("prevDouble").addEventListener("click", () => {
+    if (currentDouble > 0) {
+      currentDouble--;
+      updateDoubleUI();
+    }
+  });
+
+  document.getElementById("nextDouble").addEventListener("click", () => {
+    if (currentDouble < doubleSteps.length - 1) {
+      currentDouble++;
+      updateDoubleUI();
+    }
+  });
+
+  function updateSingleUI() {
+    document.getElementById("singleStep").textContent =
+      singleSteps[currentSingle];
+    document.getElementById("singleCounter").textContent =
+      `تکرار: ${currentSingle}`;
+    document.getElementById("prevSingle").disabled = currentSingle === 0;
+    document.getElementById("nextSingle").disabled =
+      currentSingle === singleSteps.length - 1;
+  }
+
+  function updateDoubleUI() {
+    document.getElementById("doubleStep").textContent =
+      doubleSteps[currentDouble];
+    document.getElementById("doubleCounter").textContent =
+      `تکرار: ${currentDouble}`;
+    document.getElementById("analysis").textContent =
+      getAnalysis(currentDouble);
+    document.getElementById("prevDouble").disabled = currentDouble === 0;
+    document.getElementById("nextDouble").disabled =
+      currentDouble === doubleSteps.length - 1;
+  }
+
+  // Initial UI setup
+  updateSingleUI();
+  updateDoubleUI();
+</script>

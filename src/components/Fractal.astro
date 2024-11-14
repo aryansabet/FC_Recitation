@@ -1,0 +1,159 @@
+---
+
+---
+
+<div class="flex flex-col gap-4 p-4">
+  <div class="border rounded-lg p-4 bg-slate-50">
+    <div class="flex flex-col gap-4">
+      <div class="flex justify-between items-center">
+        <button
+          id="prevStep"
+          class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+        >
+          Previous
+        </button>
+        <div id="iterationCounter" class="text-sm">Iteration: 0</div>
+        <button
+          id="nextStep"
+          class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+        >
+          Next
+        </button>
+      </div>
+      <div id="svgContainer" class="w-full h-auto border rounded bg-white">
+        <!-- SVG will be rendered here -->
+      </div>
+      <div id="currentRule" class="text-sm font-mono bg-gray-100 p-2 rounded">
+        F
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  class Turtle {
+    constructor(svg) {
+      this.svg = svg;
+      this.path = "";
+      this.x = 0;
+      this.y = 0;
+      this.angle = 0; // angle in degrees
+      this.stepSize = 10;
+    }
+
+    forward() {
+      const newX =
+        this.x + this.stepSize * Math.cos((this.angle * Math.PI) / 180);
+      const newY =
+        this.y + this.stepSize * Math.sin((this.angle * Math.PI) / 180);
+      this.path += `L ${newX} ${newY} `;
+      this.x = newX;
+      this.y = newY;
+    }
+
+    turn(angle) {
+      this.angle += angle;
+    }
+
+    beginPath(startX, startY) {
+      this.x = startX;
+      this.y = startY;
+      this.path = `M ${startX} ${startY} `;
+    }
+
+    getPath() {
+      return this.path;
+    }
+  }
+
+  function generateLSystem(axiom, iterations) {
+    let result = axiom;
+    for (let i = 0; i < iterations; i++) {
+      let newResult = "";
+      for (const char of result) {
+        if (char === "F") {
+          newResult += "F+F-F";
+        } else {
+          newResult += char;
+        }
+      }
+      result = newResult;
+    }
+    return result;
+  }
+
+  function drawLSystem(instructions, svgContainer) {
+    // Clear previous SVG
+    svgContainer.innerHTML = "";
+
+    // Create new SVG element
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("width", "100%");
+    svg.setAttribute("height", "100%");
+    svg.setAttribute("viewBox", "-200 -200 400 400");
+
+    const turtle = new Turtle(svg);
+    turtle.beginPath(0, 0);
+
+    // Process instructions
+    for (const char of instructions) {
+      switch (char) {
+        case "F":
+          turtle.forward();
+          break;
+        case "+":
+          turtle.turn(90);
+          break;
+        case "-":
+          turtle.turn(-90);
+          break;
+      }
+    }
+
+    // Create path element
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", turtle.getPath());
+    path.setAttribute("stroke", "#2563eb");
+    path.setAttribute("stroke-width", "2");
+    path.setAttribute("fill", "none");
+
+    svg.appendChild(path);
+    svgContainer.appendChild(svg);
+  }
+
+  let currentIteration = 0;
+  const maxIterations = 4;
+  const svgContainer = document.getElementById("svgContainer");
+  const prevButton = document.getElementById("prevStep");
+  const nextButton = document.getElementById("nextStep");
+  const iterationCounter = document.getElementById("iterationCounter");
+  const currentRuleElement = document.getElementById("currentRule");
+
+  function updateUI() {
+    const lSystem = generateLSystem("F", currentIteration);
+    drawLSystem(lSystem, svgContainer);
+
+    iterationCounter.textContent = `Iteration: ${currentIteration}`;
+    currentRuleElement.textContent = lSystem;
+
+    prevButton.disabled = currentIteration === 0;
+    nextButton.disabled = currentIteration === maxIterations;
+  }
+
+  prevButton.addEventListener("click", () => {
+    if (currentIteration > 0) {
+      currentIteration--;
+      updateUI();
+    }
+  });
+
+  nextButton.addEventListener("click", () => {
+    if (currentIteration < maxIterations) {
+      currentIteration++;
+      updateUI();
+    }
+  });
+
+  // Initial render
+  updateUI();
+</script>
