@@ -93,10 +93,39 @@ import FractalLSystem from '../../../components/Fractal.astro'
 - تکرار ۱: `F+F-F`
 - تکرار ۲: `F+F-F+F+F-F-F+F-F`
 
+### شبیه‌ساز 1 (proccess_ins تابع):
+این تابع تعداد تکرار `n` را میگیرد و عبارت مربوط به آن را تولید میکند
 <LSystemVisualizer />
 
 
-
+### شبیه ساز 2 (تابع follow):
+این تابع یک عبارت میگیرد و تک تک حرف های آنرا اجرا و طرح را میکشد.
 <FractalLSystem/>
 
+## سیستم های دوشاخه یا درختی
+این سیستم قبلی فقط دور خود میچرخد. حتی با زیاد کردن تعداد دور ها دور خود خواهد چرخید اما ما میخواهیم شاخه بزنیم. برای اینکار در فرمول از `[` و `]` استفاده میکنیم. عکس زیر را ببینید.
 
+![](../assets/fractal.png)
+
+### چگونه این را پیاده سازی کنیم؟
+تابع `follow` یک عبارت مثل `F+F-F+F+F-F-F+F-F` را در آرگومان `s` میگیرد و آنرا روی صفحه میکشد
+```python
+def follow(s):
+    """Draw the L-system string using turtle graphics"""
+    # something to do
+    for c in s:
+        if c == 'f':
+            turtle.forward(x)
+        elif c == '-':
+            turtle.left(a)
+        elif c == '+':
+            turtle.right(a)
+        elif c == '[':
+            # Save the current position and angle
+        elif c == ']':
+            # Restore the last saved position and angle
+```
+
+در تابع بالا استفاده از درسنامه قبلی جاهای خالی را موقعیت میگیریم و ذخیره میکنیم..
+
+![](../assets/lsys2.png)
