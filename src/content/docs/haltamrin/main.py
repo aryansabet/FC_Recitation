@@ -1,7 +1,7 @@
 import turtle
 
 x = 50  # Forward movement distance
-a = 20  # Angle for turning
+a = 30  # Angle for turning
 
 def follow(s):
     """Draw the L-system string using turtle graphics"""
@@ -33,8 +33,8 @@ def process_inst(s, n):
     
     result = ""
     for c in s:
-        if c == 'f':
-            result += "f[-f][+f]"
+        if c == axiom:
+            result += rule
         else:
             result += c
     
@@ -46,8 +46,9 @@ turtle.color('green')  # Make it green like a tree
 turtle.left(90)  # Start pointing upward
 
 # Create and draw the tree
-base_pattern = "f"
-tree = process_inst(base_pattern, 4)  # Try different numbers for different tree sizes
+axiom = "f"
+rule = "f[-f][+f]"
+tree = process_inst(axiom, 4)  # Try different numbers for different tree sizes
 follow(tree)
 
 turtle.mainloop()
