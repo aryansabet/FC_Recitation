@@ -21,10 +21,10 @@ def follow(s):
             # Restore the last saved position and angle
             if saved_states:
                 position, heading = saved_states.pop()
-                turtle.penup()
+                # turtle.penup()
                 turtle.setposition(position)
                 turtle.setheading(heading)
-                turtle.pendown()
+                # turtle.pendown()
 
 def process_inst(s, n):
     """Process the L-system string recursively"""
